@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediSphere | Next-Gen Healthcare Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0ea5e9',
+                        secondary: '#8b5cf6',
+                        dark: '#0f172a',
+                        glass: 'rgba(255, 255, 255, 0.08)'
+                    },
+                    fontFamily: {
+                        poppins: ['Poppins', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'glow': '0 0 20px rgba(59, 130, 246, 0.5)',
+                        'glow-purple': '0 0 20px rgba(139, 92, 246, 0.5)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
+        /* Video Background - Fixed */
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        .video-background video {
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+        }
+
+        /* Glass Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Header Animation */
+        .header-hidden {
+            transform: translateY(-100%);
+        }
+
+        /* Hero Section */
+        .hero-title {
+            text-shadow: 0 0 20px rgba(59, 130, 246, 0.7);
+            animation: pulse-glow 3s infinite alternate;
+        }
+
+        @keyframes pulse-glow {
+            0% { text-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+            100% { text-shadow: 0 0 30px rgba(59, 130, 246, 0.9); }
+        }
+
+        .animated-text span {
+            position: relative;
+        }
+
+        .animated-text span::after {
+            content: '';
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            background-color: #0f172a;
+            border-left: 2px solid #0ea5e9;
+            right: -5px;
+            animation: typing 4s steps(20) infinite, blink 0.7s infinite;
+        }
+
+        @keyframes typing {
+            40%, 60% { left: calc(100% + 5px); }
+            100% { left: 0; }
+        }
+
+        @keyframes blink {
+            50% { border-color: transparent; }
+        }
+
+        /* Role Cards */
+        .role-card {
+            perspective: 1000px;
+            transition: transform 0.3s ease;
+        }
+
+        .role-card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .role-card:hover .role-card-inner {
+            transform: rotateY(10deg) rotateX(5deg) scale(1.05);
+        }
+
+        .role-card.doctor:hover .role-card-inner {
+            box-shadow: 0 0 30px rgba(14, 165, 233, 0.5);
+        }
+
+        .role-card.patient:hover .role-card-inner {
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+        }
+
+        /* Counter Animation */
+        .counter {
+            transition: all 1.5s ease;
+        }
+
+        /* Feature Cards */
+        .feature-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Chat Button */
+        .chat-button {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.6); }
+            70% { box-shadow: 0 0 0 15px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        /* New Particles Effect */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 15s infinite linear;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-1000px) translateX(1000px) rotate(720deg); opacity: 0; }
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .role-cards-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .role-card {
+                width: 90%;
+                margin-bottom: 2rem;
+            }
+            
+            .video-background video {
+                display: none;
+            }
+            
+            .video-background {
+                background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            }
+        }
+    </style>
+</head>
+<body class="text-white overflow-x-hidden">
+    <!-- Video Background - Fixed with fallback -->
+    <div class="video-background">
+        <video autoplay muted loop playsinline>
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-medical-laboratory-in-a-hospital-39621-large.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="video-overlay"></div>
+        
+        <!-- Particles effect as fallback enhancement -->
+        <div class="particles" id="particles"></div>
+    </div>
+
+    <!-- Floating Header -->
+    <header id="header" class="fixed top-0 left-0 w-full py-4 px-6 z-50 transition-transform duration-300">
+        <div class="container mx-auto flex justify-between items-center glass rounded-2xl py-3 px-6">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                    <i class="fas fa-heartbeat text-white text-xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">MediSphere</h1>
+            </div>
+            
+            <nav class="hidden md:flex space-x-8">
+                <!-- <a href="#" class="hover:text-primary transition">Home</a>
+                <a href="#" class="hover:text-primary transition">Services</a>
+                <a href="#" class="hover:text-primary transition">Doctors</a>
+                <a href="#" class="hover:text-primary transition">Facilities</a>
+                <a href="#" class="hover:text-primary transition">About Us</a> -->
+            </nav>
+            
+            <div class="flex items-center space-x-4">
+                <button class="px-4 py-2 rounded-lg hover:bg-white/10 transition">Login</button>
+                <button class="px-4 py-2 bg-gradient-to-r from-primary to-secondary rounded-lg hover:opacity-90 transition transform hover:scale-105">Sign Up</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen flex items-center pt-16 px-4">
+        <div class="container mx-auto text-center px-4 py-20">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="hero-title text-5xl md:text-7xl font-extrabold mb-6">
+                    Revolutionizing <span class="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Healthcare</span>
+                </h1>
+                <!-- <p class="animated-text text-xl md:text-2xl mb-10 max-w-2xl mx-auto glass py-4 px-6 rounded-xl">
+                    <span>Experience the future of medicine with AI-powered diagnostics and seamless patient care</span>
+                </p>
+                 -->
+                <div class="role-cards-container flex justify-center space-x-10 mt-16">
+                    <div class="role-card doctor">
+                        <div class="role-card-inner glass rounded-2xl p-8 w-64 h-80 flex flex-col items-center justify-center transform transition duration-500">
+                            <div class="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center mb-6">
+                                <i class="fas fa-user-md text-white text-3xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold mb-4">For Doctors</h3>
+                            <p class="text-gray-300 mb-6">Advanced tools for patient management and diagnostics</p>
+                            <button class="px-6 py-2 bg-gradient-to-r from-primary to-blue-600 rounded-full hover:opacity-90 transition transform hover:scale-105">
+                                Continue
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="role-card patient">
+                        <div class="role-card-inner glass rounded-2xl p-8 w-64 h-80 flex flex-col items-center justify-center transform transition duration-500">
+                            <div class="w-20 h-20 rounded-full bg-gradient-to-br from-secondary to-purple-600 flex items-center justify-center mb-6">
+                                <i class="fas fa-user-injured text-white text-3xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold mb-4">For Patients</h3>
+                            <p class="text-gray-300 mb-6">Personalized care and health tracking at your fingertips</p>
+                            <button class="px-6 py-2 bg-gradient-to-r from-secondary to-purple-600 rounded-full hover:opacity-90 transition transform hover:scale-105">
+                                Continue
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-16 glass my-20 rounded-3xl mx-4 md:mx-20">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div class="p-6">
+                    <div class="text-4xl md:text-6xl font-bold mb-2 counter" data-target="500">0</div>
+                    <div class="text-gray-300">Healthcare Providers</div>
+                </div>
+                <div class="p-6">
+                    <div class="text-4xl md:text-6xl font-bold mb-2 counter" data-target="98">0</div>
+                    <div class="text-gray-300">Satisfaction Rate</div>
+                </div>
+                <div class="p-6">
+                    <div class="text-4xl md:text-6xl font-bold mb-2 counter" data-target="24">0</div>
+                    <div class="text-gray-300">Hour Support</div>
+                </div>
+                <div class="p-6">
+                    <div class="text-4xl md:text-6xl font-bold mb-2 counter" data-target="150">0</div>
+                    <div class="text-gray-300">Specialties Covered</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-20 px-4">
+        <div class="container mx-auto">
+            <h2 class="text-4xl font-bold text-center mb-4">Comprehensive Healthcare Solutions</h2>
+            <p class="text-xl text-center text-gray-300 mb-16 max-w-3xl mx-auto">Our platform integrates the latest medical technology with compassionate care for optimal health outcomes</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <!-- Feature 1 -->
+                <div class="feature-card glass rounded-2xl p-8">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center mb-6">
+                        <i class="fas fa-calendar-check text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Appointment Booking</h3>
+                    <p class="text-gray-300 mb-6">Schedule appointments instantly with our network of specialists and receive automated reminders.</p>
+                    <div class="flex justify-center">
+                        <div class="w-12 h-1 bg-gradient-to-r from-primary to-blue-500 rounded-full"></div>
+                    </div>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="feature-card glass rounded-2xl p-8">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center mb-6">
+                        <i class="fas fa-heartbeat text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Vital Tracking</h3>
+                    <p class="text-gray-300 mb-6">Monitor your health metrics in real-time with our integrated wearable device support.</p>
+                    <div class="flex justify-center">
+                        <div class="w-12 h-1 bg-gradient-to-r from-green-400 to-emerald-600 rounded-full"></div>
+                    </div>
+                </div>
+                
+                <!-- Feature 3 -->
+                <div class="feature-card glass rounded-2xl p-8">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-secondary to-purple-600 flex items-center justify-center mb-6">
+                        <i class="fas fa-comments text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Virtual Consultations</h3>
+                    <p class="text-gray-300 mb-6">Connect with healthcare professionals from the comfort of your home with our secure video platform.</p>
+                    <div class="flex justify-center">
+                        <div class="w-12 h-1 bg-gradient-to-r from-secondary to-purple-600 rounded-full"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 px-4">
+        <div class="container mx-auto max-w-4xl glass rounded-3xl p-10 md:p-16 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to Transform Your Healthcare Experience?</h2>
+            <p class="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">Join thousands of patients and providers who are already experiencing the future of healthcare.</p>
+            
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <button class="px-8 py-4 bg-gradient-to-r from-primary to-blue-600 rounded-full hover:opacity-90 transition transform hover:scale-105 text-lg font-bold">
+                    Create Free Account
+                </button>
+                <button class="px-8 py-4 glass rounded-full hover:bg-white/10 transition transform hover:scale-105 text-lg font-bold">
+                    Schedule a Demo
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 px-4">
+        <div class="container mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center space-x-2 mb-6 md:mb-0">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                        <i class="fas fa-heartbeat text-white text-xl"></i>
+                    </div>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">MediSphere</h1>
+                </div>
+                
+                <div class="flex space-x-6">
+                    <a href="#" class="hover:text-primary transition"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="hover:text-primary transition"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="hover:text-primary transition"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="hover:text-primary transition"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/10 mt-10 pt-8 text-center text-gray-400">
+                <p>&copy; 2023 MediSphere Healthcare. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Chat Button -->
+    <div class="fixed bottom-8 right-8 z-50">
+        <button class="chat-button w-16 h-16 rounded-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg">
+            <i class="fas fa-comment-dots text-white text-2xl"></i>
+        </button>
+    </div>
+
+    <script>
+        // Header scroll effect
+        let lastScrollTop = 0;
+        const header = document.getElementById('header');
+        
+        window.addEventListener('scroll', function() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > lastScrollTop && scrollTop > 100) {
+                header.classList.add('header-hidden');
+            } else {
+                header.classList.remove('header-hidden');
+            }
+            
+            lastScrollTop = scrollTop;
+        });
+
+        // Counter animation
+        const counters = document.querySelectorAll('.counter');
+        const speed = 200;
+        
+        const startCounter = () => {
+            counters.forEach(counter => {
+                const updateCount = () => {
+                    const target = +counter.getAttribute('data-target');
+                    const count = +counter.innerText;
+                    
+                    const inc = target / speed;
+                    
+                    if (count < target) {
+                        counter.innerText = Math.ceil(count + inc);
+                        setTimeout(updateCount, 20);
+                    } else {
+                        counter.innerText = target;
+                    }
+                };
+                
+                updateCount();
+            });
+        };
+        
+        // Initialize counters when in viewport
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    startCounter();
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        counters.forEach(counter => {
+            observer.observe(counter);
+        });
+
+        // Role card tilt effect
+        const roleCards = document.querySelectorAll('.role-card');
+        
+        roleCards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const cardRect = card.getBoundingClientRect();
+                const x = e.clientX - cardRect.left;
+                const y = e.clientY - cardRect.top;
+                
+                const centerX = cardRect.width / 2;
+                const centerY = cardRect.height / 2;
+                
+                const rotateY = (x - centerX) / 25;
+                const rotateX = (centerY - y) / 25;
+                
+                card.querySelector('.role-card-inner').style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg) scale(1.05)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.querySelector('.role-card-inner').style.transform = 'rotateY(0) rotateX(0) scale(1)';
+            });
+        });
+
+        // Create particles for fallback effect
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random size
+                const size = Math.random() * 10 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Random position
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                
+                // Random animation duration
+                particle.style.animationDuration = `${Math.random() * 20 + 10}s`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                
+                container.appendChild(particle);
+            }
+        }
+        
+        // Check if video is playing
+        function isVideoPlaying(video) {
+            return video.readyState > 2 && !video.paused && !video.ended;
+        }
+        
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            
+            const video = document.querySelector('video');
+            
+            // If video doesn't load properly, enhance fallback
+            setTimeout(() => {
+                if (!isVideoPlaying(video)) {
+                    document.querySelector('.video-overlay').style.backgroundColor = 'rgba(15, 23, 42, 0.95)';
+                }
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
