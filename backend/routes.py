@@ -1,17 +1,12 @@
-from flask import Blueprint, jsonify, request, render_template
+from flask import Blueprint, jsonify, request
 from datetime import datetime, date, timedelta
 from flask_login import login_required, current_user
 from sqlalchemy import func, case, or_, distinct, extract, and_
 from models import db, Patient, Appointment, User, Prescription, LabResult, Notification
 from models import HealthMetric, VitalSign, PendingAction, Medication, MedicalRecord, Program
 
-# Blueprint for dashboard
-dashboard_bp = Blueprint('dashboard', __name__, url_prefix='/dashboard')
-
-@dashboard_bp.route('/')
-@login_required
-def system_dashboard():
-    return render_template('dashboard.html')
+# Blueprint for dashboard API
+dashboard_bp = Blueprint('dashboard', __name__, url_prefix='/api/dashboard')
 
 @dashboard_bp.route('/data')
 @login_required
@@ -166,34 +161,70 @@ patients_bp = Blueprint('patients', __name__, url_prefix='/api/patients')
 @patients_bp.route('/', methods=['GET'])
 @login_required
 def get_patients():
-    patients = Patient.query.all()
-    return jsonify([{
-        'id': p.id,
-        'name': p.name,
-        'email': p.email,
-        'phone': p.phone,
-        'age': p.age,
-        'gender': p.gender,
-        'status': 'active' if p.is_active else 'inactive'
-    } for p in patients])
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    search = request.args.get('search', '')
+    
+    query = Patient.query
+    
+    if search:
+        query = query.filter(or_(
+            Patient.first_name.ilike(f'%{search}%'),
+            Patient.last_name.ilike(f'%{search}%'),
+            Patient.email.ilike(f'%{search}%')
+        ))
+    
+    patients = query.paginate(page=page, per_page=per_page, error_out=False)
+    
+    return jsonify({
+        'patients': [{
+            'id': p.id,
+            'first_name': p.first_name,
+            'last_name': p.last_name,
+            'email': p.email,
+            'phone': p.phone,
+            'age': p.age,
+            'gender': p.gender,
+            'status': 'active' if p.is_active else 'inactive'
+        } for p in patients.items],
+        'total': patients.total,
+        'pages': patients.pages,
+        'current_page': page
+    })
 
 @patients_bp.route('/', methods=['POST'])
 @login_required
 def create_patient():
     data = request.get_json()
-    new_patient = Patient(
-        first_name=data.get('first_name'),
-        last_name=data.get('last_name'),
-        email=data.get('email'),
-        phone=data.get('phone'),
-        date_of_birth=datetime.strptime(data.get('date_of_birth'), '%Y-%m-%d').date(),
-        gender=data.get('gender'),
-        blood_type=data.get('blood_type'),
-        is_active=True
-    )
-    db.session.add(new_patient)
-    db.session.commit()
-    return jsonify({'status': 'success', 'patient_id': new_patient.id}), 201
+    
+    # Validate required fields
+    required_fields = ['first_name', 'last_name', 'email', 'date_of_birth', 'gender']
+    for field in required_fields:
+        if field not in data or not data[field]:
+            return jsonify({'error': f'Missing required field: {field}'}), 400
+    
+    try:
+        new_patient = Patient(
+            first_name=data.get('first_name'),
+            last_name=data.get('last_name'),
+            email=data.get('email'),
+            phone=data.get('phone'),
+            date_of_birth=datetime.strptime(data.get('date_of_birth'), '%Y-%m-%d').date(),
+            gender=data.get('gender'),
+            blood_type=data.get('blood_type'),
+            is_active=True
+        )
+        db.session.add(new_patient)
+        db.session.commit()
+        
+        return jsonify({
+            'status': 'success', 
+            'patient_id': new_patient.id,
+            'message': 'Patient created successfully'
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
 @patients_bp.route('/<int:patient_id>', methods=['GET'])
 @login_required
@@ -211,6 +242,57 @@ def get_patient(patient_id):
         'status': 'active' if patient.is_active else 'inactive'
     })
 
+@patients_bp.route('/<int:patient_id>', methods=['PUT'])
+@login_required
+def update_patient(patient_id):
+    patient = Patient.query.get_or_404(patient_id)
+    data = request.get_json()
+    
+    try:
+        if 'first_name' in data:
+            patient.first_name = data['first_name']
+        if 'last_name' in data:
+            patient.last_name = data['last_name']
+        if 'email' in data:
+            patient.email = data['email']
+        if 'phone' in data:
+            patient.phone = data['phone']
+        if 'date_of_birth' in data:
+            patient.date_of_birth = datetime.strptime(data['date_of_birth'], '%Y-%m-%d').date()
+        if 'gender' in data:
+            patient.gender = data['gender']
+        if 'blood_type' in data:
+            patient.blood_type = data['blood_type']
+        if 'is_active' in data:
+            patient.is_active = data['is_active']
+            
+        db.session.commit()
+        
+        return jsonify({
+            'status': 'success', 
+            'message': 'Patient updated successfully'
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@patients_bp.route('/<int:patient_id>', methods=['DELETE'])
+@login_required
+def delete_patient(patient_id):
+    patient = Patient.query.get_or_404(patient_id)
+    
+    try:
+        db.session.delete(patient)
+        db.session.commit()
+        
+        return jsonify({
+            'status': 'success', 
+            'message': 'Patient deleted successfully'
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
 # Appointments API
 appointments_bp = Blueprint('appointments', __name__, url_prefix='/api/appointments')
 
@@ -219,11 +301,21 @@ appointments_bp = Blueprint('appointments', __name__, url_prefix='/api/appointme
 def get_appointments():
     start_date = request.args.get('start_date', default=date.today().isoformat())
     end_date = request.args.get('end_date', default=date.today().isoformat())
+    doctor_id = request.args.get('doctor_id', type=int)
+    patient_id = request.args.get('patient_id', type=int)
     
-    appointments = Appointment.query.filter(
+    query = Appointment.query.filter(
         Appointment.date >= start_date,
         Appointment.date <= end_date
-    ).all()
+    )
+    
+    if doctor_id:
+        query = query.filter(Appointment.doctor_id == doctor_id)
+    
+    if patient_id:
+        query = query.filter(Appointment.patient_id == patient_id)
+    
+    appointments = query.all()
     
     return jsonify([{
         'id': a.id,
@@ -231,10 +323,47 @@ def get_appointments():
         'start': datetime.combine(a.date, a.start_time).isoformat(),
         'end': datetime.combine(a.date, a.end_time).isoformat() if a.end_time else None,
         'doctor': a.doctor.username,
+        'doctor_id': a.doctor_id,
+        'patient_id': a.patient_id,
         'status': a.status,
         'urgent': a.is_urgent,
-        'telemedicine': a.telemedicine
+        'telemedicine': a.telemedicine,
+        'reason': a.reason
     } for a in appointments])
+
+@appointments_bp.route('/', methods=['POST'])
+@login_required
+def create_appointment():
+    data = request.get_json()
+    
+    required_fields = ['patient_id', 'doctor_id', 'date', 'start_time', 'reason']
+    for field in required_fields:
+        if field not in data or not data[field]:
+            return jsonify({'error': f'Missing required field: {field}'}), 400
+    
+    try:
+        new_appointment = Appointment(
+            patient_id=data['patient_id'],
+            doctor_id=data['doctor_id'],
+            date=datetime.strptime(data['date'], '%Y-%m-%d').date(),
+            start_time=datetime.strptime(data['start_time'], '%H:%M').time(),
+            end_time=datetime.strptime(data['end_time'], '%H:%M').time() if data.get('end_time') else None,
+            reason=data['reason'],
+            status=data.get('status', 'scheduled'),
+            is_urgent=data.get('is_urgent', False),
+            telemedicine=data.get('telemedicine', False)
+        )
+        db.session.add(new_appointment)
+        db.session.commit()
+        
+        return jsonify({
+            'status': 'success', 
+            'appointment_id': new_appointment.id,
+            'message': 'Appointment created successfully'
+        }), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 
 # Doctors API
 doctors_bp = Blueprint('doctors', __name__, url_prefix='/api/doctors')
@@ -271,16 +400,22 @@ def get_inventory():
 @login_required
 def get_prescriptions():
     status = request.args.get('status', 'all')
+    patient_id = request.args.get('patient_id', type=int)
+    
     query = Prescription.query
     
     if status != 'all':
         query = query.filter_by(status=status)
     
+    if patient_id:
+        query = query.filter_by(patient_id=patient_id)
+    
     prescriptions = query.all()
     
     return jsonify([{
         'id': p.id,
-        'patient': p.patient.name,
+        'patient_id': p.patient_id,
+        'patient': f"{p.patient.first_name} {p.patient.last_name}",
         'medication': p.medication_name,
         'dosage': p.dosage,
         'status': p.status,
@@ -302,7 +437,8 @@ def get_records():
     
     return jsonify([{
         'id': r.id,
-        'patient': r.patient.name,
+        'patient_id': r.patient_id,
+        'patient': f"{r.patient.first_name} {r.patient.last_name}",
         'diagnosis': r.diagnosis,
         'visit_date': r.visit_date.isoformat(),
         'doctor': r.doctor.username
@@ -383,7 +519,7 @@ def appointment_trends():
     ).group_by(User.username).all()
     
     return jsonify({
-        'monthly': [{'year': m[0], 'month': m[1], 'count': m[2]} for m in monthly],
+        'monthly': [{'year': int(m[0]), 'month': int(m[1]), 'count': m[2]} for m in monthly],
         'by_status': [{'status': s[0], 'count': s[1]} for s in by_status],
         'by_doctor': [{'doctor': d[0], 'count': d[1]} for d in by_doctor]
     })
@@ -436,3 +572,16 @@ def mark_as_read(notification_id):
     notification.read = True
     db.session.commit()
     return jsonify({'status': 'success'})
+
+# Register all blueprints
+# def register_blueprints(app):
+#     app.register_blueprint(dashboard_bp)
+#     app.register_blueprint(patients_bp)
+#     app.register_blueprint(appointments_bp)
+#     app.register_blueprint(doctors_bp)
+#     app.register_blueprint(pharmacy_bp)
+#     app.register_blueprint(records_bp)
+#     app.register_blueprint(programs_bp)
+#     app.register_blueprint(analytics_bp)
+#     app.register_blueprint(settings_bp)
+#     app.register_blueprint(notifications_bp)
