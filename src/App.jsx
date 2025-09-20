@@ -8,7 +8,7 @@ import axios from 'axios';
 Chart.register(...registerables);
 
 // API Service Layer - Enhanced with retry logic and better error handling
-const API_BASE_URL = 'https://health-backend-1-ka82.onrender.com/api';
+const API_BASE_URL = 'http://127.0.0.1:5000/api';
 
 // Enhanced Axios instance with better interceptors
 const api = axios.create({
@@ -1152,12 +1152,12 @@ function App() {
 
   return (
     <div className={`app ${darkMode ? 'dark-mode' : ''}`}>
-      <Sidebar 
+      {/* <Sidebar 
         currentPage={currentPage} 
         navigateTo={navigateTo} 
         unreadAppointments={appointments.filter(a => a.status === 'pending').length}
         unreadPharmacy={2}
-      />
+      /> */}
       
       <div className="main-content">
         <Topbar 
@@ -1181,122 +1181,8 @@ function App() {
 }
 
 // Enhanced Sidebar Component
-const Sidebar = React.memo(({ currentPage, navigateTo, unreadAppointments, unreadPharmacy }) => {
-  const [collapsed, setCollapsed] = useState(false);
-  
-  const toggleSidebar = () => {
-    setCollapsed(!collapsed);
-  };
 
-  return (
-    <div className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
-      <div className="sidebar-header">
-        <div className="sidebar-logo">
-          <div className="logo-icon">
-            <i className="fas fa-heartbeat"></i>
-          </div>
-          {!collapsed && (
-            <div className="system-name">
-              <span>MediCare</span>
-              <span>Dashboard</span>
-            </div>
-          )}
-        </div>
-        <button className="sidebar-toggle" onClick={toggleSidebar}>
-          <i className={`fas ${collapsed ? 'fa-chevron-right' : 'fa-chevron-left'}`}></i>
-        </button>
-      </div>
 
-      <div className="sidebar-nav">
-        <NavItem 
-          icon="fas fa-home"
-          label="Dashboard"
-          active={currentPage === 'dashboard'}
-          onClick={() => navigateTo('dashboard')}
-          collapsed={collapsed}
-        />
-
-        <NavItem 
-          icon="fas fa-user-injured"
-          label="Patients"
-          active={currentPage === 'patients'}
-          onClick={() => navigateTo('patients')}
-          collapsed={collapsed}
-        />
-
-        <NavItem 
-          icon="fas fa-stethoscope"
-          label="Doctors"
-          active={currentPage === 'doctors'}
-          onClick={() => navigateTo('doctors')}
-          collapsed={collapsed}
-        />
-
-        <NavItem 
-          icon="fas fa-calendar-check"
-          label="Appointments"
-          active={currentPage === 'appointments'}
-          onClick={() => navigateTo('appointments')}
-          badge={unreadAppointments}
-          collapsed={collapsed}
-        />
-
-        <NavItem 
-          icon="fas fa-pills"
-          label="Pharmacy"
-          active={currentPage === 'pharmacy'}
-          onClick={() => navigateTo('pharmacy')}
-          badge={unreadPharmacy}
-          collapsed={collapsed}
-        />
-
-        <NavItem 
-          icon="fas fa-file-medical"
-          label="Medical Records"
-          active={currentPage === 'records'}
-          onClick={() => navigateTo('records')}
-          collapsed={collapsed}
-        />
-
-        <NavItem 
-          icon="fas fa-heartbeat"
-          label="Health Programs"
-          active={currentPage === 'programs'}
-          onClick={() => navigateTo('programs')}
-          collapsed={collapsed}
-        />
-
-        <NavItem 
-          icon="fas fa-chart-line"
-          label="Analytics"
-          active={currentPage === 'analytics'}
-          onClick={() => navigateTo('analytics')}
-          collapsed={collapsed}
-        />
-      </div>
-
-      <div className="sidebar-footer">
-        <NavItem 
-          icon="fas fa-cog"
-          label="Settings"
-          active={false}
-          onClick={() => navigateTo('settings')}
-          collapsed={collapsed}
-        />
-        
-        {!collapsed && (
-          <div className="sidebar-user">
-            <div className="user-avatar">DR</div>
-            <div className="user-info">
-              <div className="user-name">Dr. Smith</div>
-              <div className="user-role">Administrator</div>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-});
 
 // NavItem component for sidebar
 const NavItem = ({ icon, label, active, onClick, badge, collapsed }) => (
