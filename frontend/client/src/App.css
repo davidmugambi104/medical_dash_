@@ -168,6 +168,87 @@
             box-shadow: var(--shadow-sm);
             z-index: 100;
         }
+                /* Add these to your existing CSS */
+        .loading-screen {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 200px;
+        color: var(--text-primary);
+        }
+
+        .error-screen {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 200px;
+        text-align: center;
+        color: var(--danger);
+        background: rgba(255, 82, 82, 0.1);
+        border-radius: 8px;
+        padding: 20px;
+        }
+
+        .no-results {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 200px;
+        text-align: center;
+        color: var(--text-secondary);
+        }
+
+        .page-actions {
+        display: flex;
+        gap: 10px;
+        }
+
+        .btn-icon {
+        padding: 8px 12px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+        }
+
+        .btn-icon:hover {
+        background: rgba(0, 0, 0, 0.05);
+        }
+
+        .more-items {
+        text-align: center;
+        color: var(--text-secondary);
+        font-style: italic;
+        }
+
+        .nav-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: var(--danger);
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+        }
+
+        .notification-item.more-notifications {
+        text-align: center;
+        font-style: italic;
+        color: var(--text-secondary);
+        border-top: 1px solid var(--border-color);
+        padding-top: 10px;
+        margin-top: 10px;
+        }
 
         .search-bar {
             display: flex;
