@@ -3,6 +3,7 @@ import './App.css';
 import { Chart, registerables } from 'chart.js';
 import moment from 'moment';
 import axios from 'axios';
+import Sidebar from './sidebar';
 
 // Register Chart.js components
 Chart.register(...registerables);
@@ -1152,12 +1153,12 @@ function App() {
 
   return (
     <div className={`app ${darkMode ? 'dark-mode' : ''}`}>
-      {/* <Sidebar 
+      <Sidebar 
         currentPage={currentPage} 
         navigateTo={navigateTo} 
         unreadAppointments={appointments.filter(a => a.status === 'pending').length}
         unreadPharmacy={2}
-      /> */}
+      />
       
       <div className="main-content">
         <Topbar 
