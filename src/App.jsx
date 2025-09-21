@@ -9,7 +9,7 @@ import Sidebar from './sidebar';
 Chart.register(...registerables);
 
 // API Service Layer - Enhanced with retry logic and better error handling
-const API_BASE_URL = 'http://127.0.0.1:5000/api';
+const API_BASE_URL = 'https://health-backend-1-ka82.onrender.com/api';
 
 // Enhanced Axios instance with better interceptors
 const api = axios.create({
